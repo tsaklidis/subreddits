@@ -1,6 +1,15 @@
+# This is your old account
 [DEFAULT]
-client_id=your_id
-client_secret=your_secret
-password=your_pass
-username=your_username
-user_agent=Subredits by /u/steftsak
+client_id=
+client_secret=
+password=
+username=
+user_agent=testscript by /u/steftsak
+
+# This is your new account
+[new]
+client_id=
+client_secret=
+password=
+username=
+user_agent=testscript by /u/steftsak
