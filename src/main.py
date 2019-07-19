@@ -18,12 +18,12 @@ parser.add_argument('--load', '-l', action="store_true",
                     help="File to load subreddits")
 
 
-class Actions(object):
+class Actions:
 
-    def __init__(self):
+    def __init__(self, account):
         try:
-            print('[i] Asking Reddit for permissions...')
-            self.reddit = praw.Reddit()
+            print('[i] Asking permissions for ' + account + ' account...')
+            self.reddit = praw.Reddit(account)
             self.username = str(self.reddit.user.me())
             print('[i] Permissions granted.\n')
         except Exception as e:
@@ -32,6 +32,7 @@ class Actions(object):
 
     def get_subs(self):
         subs = []
+        print('[i] Getting subs from Reddit...')
         for sub in self.reddit.user.subreddits():
             subs.append(sub.display_name)
         return subs
@@ -80,18 +81,28 @@ class Actions(object):
         for idx, this_file in enumerate(filterd_struct):
             print('[{0}] {1}'.format(idx, "/".join(this_file)))
 
-        while True:
-            try:
-                selection = int(input('[In] Select available file from [0-{0}]:'.format(len(filterd_struct) - 1)))  # noqa
-                if selection > len(filterd_struct) - 1 or selection < 0:
-                    print('[e] Please select in range.')
+        if len(filterd_struct) > 0:
+            while True:
+                try:
+                    selection = int(input('[In] Select available file from [0-{0}]:'.format(len(filterd_struct) - 1)))  # noqa
+                    if selection > len(filterd_struct) - 1 or selection < 0:
+                        print('[e] Please select in range.')
+                        continue
+                    else:
+                        break
+                except ValueError:
+                    print('[e] Select a nubmer.')
                     continue
-                else:
-                    break
-            except ValueError:
-                print('[e] Select a nubmer.')
-                continue
-        return '/'.join(filterd_struct[selection])
+            return '/'.join(filterd_struct[selection])
+        else:
+            return False
+
+    def subscribe(self, sub):
+        try:
+            self.reddit.subreddit(sub).subscribe()
+            print('[i] Successfully joined ' + sub)
+        except Exception as e:
+            print(e)
 
 
 if __name__ == "__main__":
@@ -100,21 +111,31 @@ if __name__ == "__main__":
     export_subs = getattr(args, 'export')
     subscribe = getattr(args, 'subscribe')
     load = getattr(args, 'load')
-    a = Actions()
+
+    old = Actions('old')
 
     if export_subs:
-        a.export_subs()
+        old.export_subs()
 
     if load:
-        backup_file = a.search_files()
-        subs = a.read_file(backup_file)
+        backup_file = old.search_files()
+        if not backup_file:
+            quit('[i] No ".json" files found. Bye!')
+
+        subs = old.read_file(backup_file)
 
         print('#######################################')
         print('[Q]: Subscribe to {0} subreddits? (Y/N)'.format(len(subs)))
         ans = input('[Ans]:')
         if ans == 'Y':
-            pass
+            new = Actions('new')
+            existing_subs = new.get_subs()
+            for sub in subs:
+                if sub in existing_subs:
+                    print('[i] You have already joined ' + sub + ' skiping...')
+                else:
+                    new.subscribe(sub)
+
+            quit('[i] All done. Bye!')
         else:
             quit('OK, quiting with no worries.')
-
-
