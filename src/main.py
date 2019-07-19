@@ -6,16 +6,16 @@ import praw
 import time
 
 
-parser = argparse.ArgumentParser(description='Reddit actions')
+parser = argparse.ArgumentParser(description='Backup Reddit Account')
 
 parser.add_argument('--export', '-e', action="store_true",
-                    help="Export Subreddits")
+                    help="Export Subreddits to a .json file")
 
-parser.add_argument('--subscribe', '-s', action="store_true",
-                    help="Subscribe to saved Subreddits")
+parser.add_argument('--restore', '-r', action="store_true",
+                    help="Restore subreddits from .json file")
 
-parser.add_argument('--load', '-l', action="store_true",
-                    help="File to load subreddits")
+parser.add_argument('--one', '-o', action="store_true",
+                    help="Export and Import to new account with one run")
 
 
 class Actions:
@@ -32,15 +32,15 @@ class Actions:
 
     def get_subs(self):
         subs = []
-        print('[i] Getting subs from Reddit...')
+        print('[i] Getting subreddits from Reddit...')
         for sub in self.reddit.user.subreddits():
             subs.append(sub.display_name)
         return subs
 
     def export_subs(self, filename=None):
-        print('[i] Saving your subreddits...')
         subs = self.get_subs()
 
+        print('[i] Saving your subreddits to a file...')
         if not filename:
             t = time.time()
             stamp = datetime.datetime.fromtimestamp(
@@ -52,7 +52,7 @@ class Actions:
         subs = sorted(subs, key=str.lower)
         json.dump(subs, file, indent=4)
         file.close()
-        print('[i] Subreddits saved to: ' + filename)
+        print('[i] Saved to: ' + filename)
 
     def read_file(self, path):
         file = open(path, 'r')
@@ -62,12 +62,8 @@ class Actions:
 
     def search_files(self):
         print('[i] Searching available files...\n')
-        # Search in extracted folders
         struct = {}  # Extracted tree {'path':'filename'}
         found_files = []  # All files in dirs ['file1', 'file2', 'file_n']
-
-        # Only needed files with their path
-        # [['path', 'file'], ['same_path', 'other_file']]
         filterd_struct = []
 
         for root, dirs, files in os.walk(os.getcwd()):
@@ -109,25 +105,32 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     export_subs = getattr(args, 'export')
-    subscribe = getattr(args, 'subscribe')
-    load = getattr(args, 'load')
+    restore = getattr(args, 'restore')
+    one = getattr(args, 'one')
 
-    old = Actions('old')
+    if export_subs or restore or one:
+        old = Actions('old')
+    else:
+        quit('[i] Use an argument for Export or Import.')
+
+    if one:
+        export_subs = restore = True
 
     if export_subs:
         old.export_subs()
 
-    if load:
+    if restore:
         backup_file = old.search_files()
         if not backup_file:
-            quit('[i] No ".json" files found. Bye!')
+            print('[i] No ".json" files found. Bye!')
+            quit('[i] HINT: Use -e argument')
 
         subs = old.read_file(backup_file)
 
         print('#######################################')
         print('[Q]: Subscribe to {0} subreddits? (Y/N)'.format(len(subs)))
         ans = input('[Ans]:')
-        if ans == 'Y':
+        if ans == 'Y' or ans == 'y':
             new = Actions('new')
             existing_subs = new.get_subs()
             for sub in subs:
