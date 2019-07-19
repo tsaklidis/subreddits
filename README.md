@@ -22,15 +22,25 @@ pip install -r requirements.tx
 First you need to set the praw.ini file. <br>
 
 <ul>
-<li>Rename the praw.ini.example to praw.ini after that create a Reddit app. In order to ask the Reddit for data you need an app so use the following link: <a href="https://www.reddit.com/prefs/apps/">https://www.reddit.com/prefs/apps/</a> </li>
+<li>
+	Rename the <strong>praw.ini.example</strong> to <strong>praw.ini</strong> after that create a Reddit app. In order to ask the Reddit for data you need an app so use the following link: <a href="https://www.reddit.com/prefs/apps/">https://www.reddit.com/prefs/apps/</a> 
+</li>
 
-<li>Fill a name for the app. The type should be set to script and redirect uri http://localhost:8080 The script will be working locally, no worries for the uri. </li>
+<li>
+Fill a name for the app. The type should be set to script and redirect uri http://localhost:8080 The script will be working locally, no worries for the uri. 
+</li>
 
-<li>After createing the app we need the credentials. <strong>client_id</strong> is right under the app name and <strong>client_secret</strong> is the secret key. </li>
+<li>
+	After createing the app we need the credentials. <strong>client_id</strong> is right under the app name and <strong>client_secret</strong> is the secret key. 
+</li>
 
-<li>Get credentials for old and new accounts. </li>
+<li>
+Get credentials for old and new accounts. 
+</li>
 
-<li>Fill the data in praw.ini file</li>
+<li>
+Fill the data in praw.ini file
+</li>
 </ul>
 </p>
 
