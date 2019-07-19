@@ -49,7 +49,7 @@ class Actions:
             filename = '{0}_{1}.json'.format(self.username, stamp)
 
         file = open(filename, 'w')
-        subs = sorted(self.get_subs(), key=str.lower)
+        subs = sorted(subs, key=str.lower)
         json.dump(subs, file, indent=4)
         file.close()
         print('[i] Subreddits saved to: ' + filename)
