@@ -1,0 +1,6 @@
+[DEFAULT]
+client_id=your_id
+client_secret=your_secret
+password=your_pass
+username=your_username
+user_agent=Subredits by /u/steftsak

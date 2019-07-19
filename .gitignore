@@ -1,4 +1,5 @@
-secret.py
-notes.txt
 *.sublime-workspace
 *.sublime-project
+*.json
+/wiki
+praw.ini

@@ -1,5 +1,16 @@
 import requests
-from secret import APP, ACC
+
+# Use this helpers in order to avoid the use of PRAW
+# Define your credentials
+
+ACC = {
+    'password': '',
+    'username': ''
+}
+APP = {
+    'id': '',
+    'secret': ''
+}
 
 
 def get_token():
@@ -16,7 +27,7 @@ def get_token():
 
     r = requests.post(base_url + 'api/v1/access_token',
                       data=data,
-                      headers={'user-agent': 'APP-NAME by REDDIT-USERNAME'},
+                      headers={'user-agent': 'subreddits by steftsak'},
                       auth=auth)
 
     return r.json()['access_token']
@@ -35,3 +46,6 @@ def list_subs():
         all_subs.append(sub['data']['display_name'])
 
     return all_subs
+
+
+
