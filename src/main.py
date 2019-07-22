@@ -46,7 +46,7 @@ class Actions:
         if not filename:
             t = time.time()
             stamp = datetime.datetime.fromtimestamp(
-                t).strftime('%Y%m%d_%H:%M')
+                t).strftime('%Y%m%d_%H%M')
 
             filename = '{0}_{1}.json'.format(self.username, stamp)
 
