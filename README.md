@@ -12,7 +12,7 @@
 ```shell
 git clone https://github.com/tsaklidis/subreddits.git
 cd subreddits
-pip install -r requirements.tx
+pip install -r requirements.txt
 ````
 
 <h3>Prepare:</h3>
@@ -60,7 +60,7 @@ python3 src/main.py -e
 </p>
 
 ```shell
-python3 src/main.py -i
+python3 src/main.py -r
 ```
 
 <p>
