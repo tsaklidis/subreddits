@@ -33,7 +33,9 @@ class Actions:
     def get_subs(self):
         subs = []
         print('[i] Getting subreddits from Reddit...')
-        for sub in self.reddit.user.subreddits():
+        user_subs = self.reddit.user.subreddits(limit=None)
+
+        for sub in user_subs:
             subs.append(sub.display_name)
         return subs
 
@@ -93,10 +95,16 @@ class Actions:
         else:
             return False
 
-    def subscribe(self, sub):
+    def subscribe(self, sub, action):
+        # With action True or False
+        # Select subscribe or leave a subreddit
         try:
-            self.reddit.subreddit(sub).subscribe()
-            print('[i] Successfully joined ' + sub)
+            if action:
+                self.reddit.subreddit(sub).subscribe()
+                print('[i] Successfully joined ' + sub)
+            else:
+                self.reddit.subreddit(sub).unsubscribe()
+                print('[i] Leaved ' + sub)
         except Exception as e:
             print(e)
 
@@ -127,18 +135,17 @@ if __name__ == "__main__":
 
         subs = old.read_file(backup_file)
 
-        print('#######################################')
-        print('[Q]: Subscribe to {0} subreddits? (Y/N)'.format(len(subs)))
+        print('#' * 50)
+        print(
+            '[Q]: Try to Subscribe in {0} subreddits? (Y/N)'.format(len(subs)))
         ans = input('[Ans]:')
         if ans == 'Y' or ans == 'y':
             new = Actions('new')
             existing_subs = new.get_subs()
-            for sub in subs:
-                if sub in existing_subs:
-                    print('[i] You have already joined ' + sub + ' skiping...')
-                else:
-                    new.subscribe(sub)
+            to_sub = set(subs) - set(existing_subs)
 
+            for sub in list(to_sub):
+                new.subscribe(sub, True)
             quit('[i] All done. Bye!')
         else:
             quit('OK, quiting with no worries.')
