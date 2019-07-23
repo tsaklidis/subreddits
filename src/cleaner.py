@@ -22,7 +22,7 @@ if __name__ == "__main__":
         print("[ATTENTION!] This can't be undone. Are you sure? (Y/N)")
         ans = input('[Ans]:')
         if ans == 'Y' or ans == 'y':
-            account = Actions('new')
+            account = Actions('old')
             print('[Q] What to confuse?\nComments=C Submissions=S')
             ans = input('[Ans]:')
             if ans == 'c' or ans == 'C':
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         print("[ATTENTION!] This can't be undone. Are you sure? (Y/N)")
         ans = input('[Ans]:')
         if ans == 'Y' or ans == 'y':
-            account = Actions('new')
+            account = Actions('old')
             print('[Q] What to delete?\nComments=C Submissions=S')
             ans = input('[Ans]:')
             if ans == 'c' or ans == 'C':
