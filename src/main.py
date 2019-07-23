@@ -5,6 +5,8 @@ import os
 import praw
 import time
 
+from helpers import get_text
+
 
 parser = argparse.ArgumentParser(description='Backup Reddit Account')
 
@@ -107,6 +109,48 @@ class Actions:
                 print('[i] Leaved ' + sub)
         except Exception as e:
             print(e)
+
+    def user_activity(self, submission=None, comments=None, count=None):
+        data = []
+        if submission:
+            for s in self.reddit.redditor(self.username).submissions.new(limit=None):
+                data.append(s)
+        elif comments:
+            for c in self.reddit.redditor(self.username).comments.new(limit=None):
+                data.append(c)
+        if count:
+            return len(data)
+        return data
+
+    def confuser(self, submission=None, comments=None, size=10):
+        # TODO: How long to confuse. Example 3 weeks or 1 hour
+        if submission:
+            print('[i] This may take some time.\nLoading data...')
+            data = self.user_activity(submission=True)
+            print('[i] Confusing submission text but NOT title...')
+            for s in data:
+                self.reddit.submission(s).edit(get_text(size))
+
+        elif comments:
+            print('[i] This may take some time.\nLoading data...')
+            data = self.user_activity(comments=True)
+            print('[i] Confusing comments...')
+            for c in data:
+                self.reddit.comment(c).edit(get_text(size))
+        print('[i] Confused {0} items.'.format(len(data)))
+
+    def delete_activity(self, submission=None, comments=None):
+        if submission:
+            print('[i] Deleting submissions...')
+            data = self.user_activity(submission=True)
+            for s in data:
+                self.reddit.submission(s).delete()
+        elif comments:
+            print('[i] Deleting comments...')
+            data = self.user_activity(comments=True)
+            for c in data:
+                self.reddit.comment(c).delete()
+        print('[i] Removed {0} items.'.format(len(data)))
 
 
 if __name__ == "__main__":

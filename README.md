@@ -1,8 +1,16 @@
-<h1>Backup Reddit Account</h1>
+<h1>Backup or Clean Reddit Account</h1>
 
 <h3>Info:</h3>
 <p>
-	With this script you can export all your subreddits. Sometimes you need a new account but want to keep all the subs you follow. Most of the time this is a boring job. 
+	<strong>[Backup]</strong>: With this functinality you can export all your subreddits. Sometimes you need a new account but want to keep all the subs you follow. Most of the time this is a boring job. 
+</p>
+
+<p>
+	<strong>[Clean]</strong>: With this functinality you can remove all your activity for example delete all the comments you have done or all the posts you have created. People tell personal information that can lead to someone that knows them or recognize them. Lot of people say or posts things in Reddit that in person no one knows. (Actions can't be undone)
+</p>
+
+<p>
+	<strong>[Confuse]</strong>: Replace your comments and posts text (not title). This is helpfull since deleted comments can still be viewed. Results look like screenshot at the end of page (Actions can't be undone)
 </p>
 
 <hr>
@@ -70,3 +78,25 @@ python3 src/main.py -r
 ```shell
 python3 src/main.py -o
 ```
+
+<hr>
+
+<p>
+	Confuse all your activity. <i>You will be asked for comments or sumbissions (posts)</i>:
+</p>
+
+```shell
+python3 src/cleaner.py -c
+```
+
+<p>
+	Delete all your activity. <i>You will be asked for comments or sumbissions (posts)</i>:
+</p>
+
+```shell
+python3 src/cleaner.py -d
+```
+
+
+
+![](screens/obf.png)
