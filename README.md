@@ -15,6 +15,12 @@
 
 <hr>
 
+<h3>Changelog 2020-10-20:</h3>
+<ul>
+    <li>Ability to select from confusing all data or single (one comment or one single submission)</li>
+    <li>Updated to latest praw (7.1.0)</li>
+</ul>
+
 <h3>Installation:</h3>
 
 ```shell

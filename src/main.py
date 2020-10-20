@@ -24,7 +24,7 @@ class Actions:
 
     def __init__(self, account):
         try:
-            print('[i] Asking permissions for ' + account + ' account...')
+            print('[i] Asking permissions for your account(s)...')
             self.reddit = praw.Reddit(account)
             self.username = str(self.reddit.user.me())
             print('[i] Permissions granted.\n')
@@ -122,8 +122,25 @@ class Actions:
             return len(data)
         return data
 
-    def confuser(self, submission=None, comments=None, size=10):
+    def get_submission(self, id):
+        return self.reddit.submission(id=id)
+
+    def get_comment(self, id):
+        return self.reddit.comment(id=id)
+
+    def confuser(self, submission=None, comments=None, id=None, size=10):
         # TODO: How long to confuse. Example 3 weeks or 1 hour
+        if id:
+            if submission:
+                sub = self.get_submission(id=id)
+                sub.edit(get_text(size))
+                quit(f'[i] Submission with id {id} confused')
+
+            elif comments:
+                com = self.get_comment(id=id)
+                com.edit(get_text(size))
+                quit(f'[i] Comment with id: {id} confused')
+
         if submission:
             print('[i] This may take some time.\nLoading data...')
             data = self.user_activity(submission=True)
@@ -139,7 +156,17 @@ class Actions:
                 self.reddit.comment(c).edit(get_text(size))
         print('[i] Confused {0} items.'.format(len(data)))
 
-    def delete_activity(self, submission=None, comments=None):
+    def delete_activity(self, submission=None, comments=None, id=None):
+        if id:
+            if submission:
+                sub = self.get_submission(id=id)
+                sub.delete()
+                quit('[i] Submission deleted.')
+
+            elif comments:
+                com = self.get_comment(id=id)
+                com.delete()
+                quit('[i] Comment deleted')
         if submission:
             print('[i] Deleting submissions...')
             data = self.user_activity(submission=True)
@@ -183,7 +210,7 @@ if __name__ == "__main__":
         print(
             '[Q]: Try to Subscribe in {0} subreddits? (Y/N)'.format(len(subs)))
         ans = input('[Ans]:')
-        if ans == 'Y' or ans == 'y':
+        if ans.lower() == 'y':
             new = Actions('new')
             existing_subs = new.get_subs()
             to_sub = set(subs) - set(existing_subs)
