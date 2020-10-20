@@ -1,5 +1,7 @@
 *.sublime-workspace
 *.sublime-project
 *.json
+.idea
+src/__pycache__/*
 /wiki
 praw.ini
