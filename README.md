@@ -88,7 +88,7 @@ python3 src/main.py -o
 <hr>
 
 <p>
-	Confuse all your activity. <i>You will be asked for comments or sumbissions (posts)</i>:
+	<strong>Confuse</strong> all your activity. <i>You will be asked for comments or sumbissions (posts)</i>:
 </p>
 
 ```shell
@@ -96,7 +96,7 @@ python3 src/cleaner.py -c
 ```
 
 <p>
-	Delete all your activity. <i>You will be asked for comments or sumbissions (posts)</i>:
+	<strong>Delete</strong> all your activity. <i>You will be asked for comments or sumbissions (posts)</i>:
 </p>
 
 ```shell
