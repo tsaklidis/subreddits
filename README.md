@@ -12,7 +12,7 @@
 ```shell
 git clone https://github.com/tsaklidis/subreddits.git
 cd subreddits
-pip install -r requirements.tx
+pip install -r requirements.txt
 ````
 
 <h3>Prepare:</h3>
@@ -23,7 +23,7 @@ First you need to set the praw.ini file. <br>
 
 <ul>
 <li>
-	Rename the <strong>praw.ini.example</strong> to <strong>praw.ini</strong> after that create a Reddit app. In order to ask the Reddit for data you need an app so use the following link: <a href="https://www.reddit.com/prefs/apps/">https://www.reddit.com/prefs/apps/</a> 
+	Rename the <strong>praw.ini.example</strong> to <strong>praw.ini</strong> after that create a Script Reddit app per account. In order to ask the Reddit for data you need an app so use the following link: <a href="https://www.reddit.com/prefs/apps/">https://www.reddit.com/prefs/apps/</a> 
 </li>
 
 <li>
@@ -31,7 +31,7 @@ Fill a name for the app. The type should be set to script and redirect uri http:
 </li>
 
 <li>
-	After createing the app we need the credentials. <strong>client_id</strong> is right under the app name and <strong>client_secret</strong> is the secret key. 
+	After creating the app we need the credentials. <strong>client_id</strong> is right under the app name and <strong>client_secret</strong> is the secret key. 
 </li>
 
 <li>
@@ -60,7 +60,7 @@ python3 src/main.py -e
 </p>
 
 ```shell
-python3 src/main.py -i
+python3 src/main.py -r
 ```
 
 <p>
