@@ -51,9 +51,16 @@ def list_subs():
     return all_subs
 
 
-# Create a random string based on timestamp
-# Don't overload your system over get_random_string(1000000)
 def get_text(length=8, prefix='', suffix='', invalid_chars=False):
+    '''
+    Create a random string based on timestamp
+    Don't overload your system over get_random_string(1000000)
+    :param length: The length of the text
+    :param prefix: Add the same string at the beginning of the final text
+    :param suffix: Add the same string at the end of the final text
+    :param invalid_chars: Exclude the given characters from the result
+    :return: String
+    '''
     u = ''
     if (not isinstance(length, int)) or length < 4:
         length = 8
@@ -67,4 +74,22 @@ def get_text(length=8, prefix='', suffix='', invalid_chars=False):
     if invalid_chars and isinstance(invalid_chars, str):
         for ch in invalid_chars:
             u = u.replace(ch, "")
-    return '{0}{1}{2}'.format(prefix, u[:length], suffix)
+    return f'{prefix}{u[:length]}{suffix}'
+
+
+def log(msg, level='info'):
+    '''
+    Log a message based on level
+    :param msg: The value to print
+    :param level: The level message
+    :return:
+    '''
+    if level == 'info':
+        sign = '[i]'
+    elif level == 'error':
+        sign = '[e]'
+    elif level == 'question':
+        sign = '[Q]'
+    else:
+        sign = ''
+    print(f'{sign} {msg}')
