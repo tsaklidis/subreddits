@@ -132,15 +132,13 @@ class Actions:
         if id:
             if submission:
                 sub = self.get_submission(id=id)
-                if self.rollback:
-                    self.save_for_rollback(sub, sub=True)
+                self.try_for_rollback(sub, sub=True)
                 sub.edit(get_text(size))
                 quit(f'[i] Submission with id {id} confused')
 
             elif comments:
                 com = self.get_comment(id=id)
-                if self.rollback:
-                    self.save_for_rollback(com, sub=False)
+                self.try_for_rollback(com, sub=False)
                 com.edit(get_text(size))
                 quit(f'[i] Comment with id: {id} confused')
 
@@ -149,6 +147,7 @@ class Actions:
             data = self.user_activity(submission=True)
             log('Confusing submission text but NOT title...')
             for s in data:
+                self.try_for_rollback(s, sub=True)
                 self.reddit.submission(s).edit(get_text(size))
 
         elif comments:
@@ -156,6 +155,7 @@ class Actions:
             data = self.user_activity(comments=True)
             log('Confusing comments...')
             for c in data:
+                self.try_for_rollback(c, sub=False)
                 self.reddit.comment(c).edit(get_text(size))
         log(f'Confused {len(data)} items.')
 
@@ -182,12 +182,16 @@ class Actions:
                 self.reddit.comment(c).delete()
         log(f'Removed {len(data)} items.')
 
-    def save_for_rollback(self, obj, sub=False):
+    def try_for_rollback(self, obj, sub=False):
         '''
         Save the id and value of the submission to a local DB
         :param obj: Submission or Comment instance
         :param sub: If True submission is passed, if False comment is passed
         '''
+        if not self.rollback:
+            # Rollback not asked with -rlb ignore
+            return
+
         value = obj.selftext if sub else obj.body
         data = {
             'id': obj.id,
