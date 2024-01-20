@@ -27,12 +27,37 @@ class DB:
             print(db_error)
             return False
 
+    def delete_record(self, id):
+        query = "DELETE FROM rollbacks WHERE id = ?"
+        values = (id,)
+        try:
+            self.cur.execute(query, values)
+            self.conn.commit()
+            return True
+        except Exception as db_error:
+            print(db_error)
+            return False
+
     def get_value_by_id(self, id):
         query = 'SELECT value FROM rollbacks WHERE id = ?'
         values = (id,)
         self.cur.execute(query, values)
         row = self.cur.fetchone()
         return row
+
+    def get_pending_rollbacks(self):
+        query = 'SELECT * FROM rollbacks'
+        self.cur.execute(query)
+        results = self.cur.fetchall()
+        rollbacks = []
+        for row in results:
+            parsed = {
+                'id': row[0],
+                'value': row[1],
+                'is_comment': row[2]
+            }
+            rollbacks.append(parsed)
+        return rollbacks
 
     def __del__(self):
         self.conn.close()

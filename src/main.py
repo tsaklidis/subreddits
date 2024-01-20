@@ -151,7 +151,7 @@ class Actions:
                 self.reddit.submission(s).edit(get_text(size))
 
         elif comments:
-            log('This may take some time.\nLoading data...')
+            log('This may take some time. Loading data...')
             data = self.user_activity(comments=True)
             log('Confusing comments...')
             for c in data:
@@ -199,9 +199,7 @@ class Actions:
             'is_comment': int(not sub)
         }
         saved = self.db.insert(data)
-        if saved:
-            log('Available for rollback')
-        else:
+        if not saved:
             log('Not saved for rollback, probably id already in DB',
                 'error')
 
