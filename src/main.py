@@ -5,7 +5,7 @@ import os
 import praw
 import time
 
-from helpers import get_text
+from helpers import get_text, log
 
 
 parser = argparse.ArgumentParser(description='Backup Reddit Account')
@@ -24,39 +24,34 @@ class Actions:
 
     def __init__(self, account):
         try:
-            print('[i] Asking permissions for your account(s)...')
+            log('Asking permissions for your account(s)...')
             self.reddit = praw.Reddit(account)
             self.username = str(self.reddit.user.me())
-            print('[i] Permissions granted.\n')
+            log('Permissions granted.\n')
         except Exception as e:
-            print(e)
+            log(e, 'error')
             quit('\n\n[e] HINT:Did you create your own praw.ini file?')
 
     def get_subs(self):
-        subs = []
-        print('[i] Getting subreddits from Reddit...')
+        log('Getting subreddits from Reddit...')
         user_subs = self.reddit.user.subreddits(limit=None)
 
-        for sub in user_subs:
-            subs.append(sub.display_name)
-        return subs
+        return [sub.display_name for sub in user_subs]
 
     def export_subs(self, filename=None):
         subs = self.get_subs()
 
-        print('[i] Saving your subreddits to a file...')
+        log(f'Found total {len(subs)} subreddits, saving to a file...')
         if not filename:
             t = time.time()
-            stamp = datetime.datetime.fromtimestamp(
-                t).strftime('%Y%m%d_%H%M')
-
-            filename = '{0}_{1}.json'.format(self.username, stamp)
+            stamp = datetime.datetime.fromtimestamp(t).strftime('%Y%m%d_%H%M')
+            filename = f'{self.username}_{stamp}.json'
 
         file = open(filename, 'w')
         subs = sorted(subs, key=str.lower)
         json.dump(subs, file, indent=4)
         file.close()
-        print('[i] Saved to: ' + filename)
+        log(f'Saved to: {filename}')
 
     def read_file(self, path):
         file = open(path, 'r')
@@ -65,10 +60,10 @@ class Actions:
         return list(set(subs))
 
     def search_files(self):
-        print('[i] Searching available files...\n')
+        log('Searching available files...\n')
         struct = {}  # Extracted tree {'path':'filename'}
         found_files = []  # All files in dirs ['file1', 'file2', 'file_n']
-        filterd_struct = []
+        filtered_struct = []
 
         for root, dirs, files in os.walk(os.getcwd()):
             for file in files:
@@ -76,24 +71,24 @@ class Actions:
                 found_files.append(file)
                 # If a useful file found, keep the path and the name
                 if file.split('.')[-1] == 'json':
-                    filterd_struct.append([root, file])
+                    filtered_struct.append([root, file])
 
-        for idx, this_file in enumerate(filterd_struct):
-            print('[{0}] {1}'.format(idx, "/".join(this_file)))
+        for idx, this_file in enumerate(filtered_struct):
+            print(f'[{idx}] {"/".join(this_file)}')
 
-        if len(filterd_struct) > 0:
+        if len(filtered_struct) > 0:
             while True:
                 try:
-                    selection = int(input('[In] Select available file from [0-{0}]:'.format(len(filterd_struct) - 1)))  # noqa
-                    if selection > len(filterd_struct) - 1 or selection < 0:
-                        print('[e] Please select in range.')
+                    selection = int(input('[In] Select available file from [0-{0}]:'.format(len(filtered_struct) - 1)))  # noqa
+                    if selection > len(filtered_struct) - 1 or selection < 0:
+                        log('Please select in range.', 'error')
                         continue
                     else:
                         break
                 except ValueError:
-                    print('[e] Select a nubmer.')
+                    log('Select a number.', 'error')
                     continue
-            return '/'.join(filterd_struct[selection])
+            return '/'.join(filtered_struct[selection])
         else:
             return False
 
@@ -103,12 +98,12 @@ class Actions:
         try:
             if action:
                 self.reddit.subreddit(sub).subscribe()
-                print('[i] Successfully joined ' + sub)
+                log(f'Successfully joined {sub}')
             else:
                 self.reddit.subreddit(sub).unsubscribe()
-                print('[i] Leaved ' + sub)
+                log(f'Leaved {sub}')
         except Exception as e:
-            print(e)
+            log(e, 'error')
 
     def user_activity(self, submission=None, comments=None, count=None):
         data = []
@@ -142,19 +137,19 @@ class Actions:
                 quit(f'[i] Comment with id: {id} confused')
 
         if submission:
-            print('[i] This may take some time.\nLoading data...')
+            log('This may take some time.\nLoading data...')
             data = self.user_activity(submission=True)
-            print('[i] Confusing submission text but NOT title...')
+            log('Confusing submission text but NOT title...')
             for s in data:
                 self.reddit.submission(s).edit(get_text(size))
 
         elif comments:
-            print('[i] This may take some time.\nLoading data...')
+            log('This may take some time.\nLoading data...')
             data = self.user_activity(comments=True)
-            print('[i] Confusing comments...')
+            log('Confusing comments...')
             for c in data:
                 self.reddit.comment(c).edit(get_text(size))
-        print('[i] Confused {0} items.'.format(len(data)))
+        log(f'Confused {len(data)} items.')
 
     def delete_activity(self, submission=None, comments=None, id=None):
         if id:
@@ -168,16 +163,16 @@ class Actions:
                 com.delete()
                 quit('[i] Comment deleted')
         if submission:
-            print('[i] Deleting submissions...')
+            log('Deleting submissions...')
             data = self.user_activity(submission=True)
             for s in data:
                 self.reddit.submission(s).delete()
         elif comments:
-            print('[i] Deleting comments...')
+            log('Deleting comments...')
             data = self.user_activity(comments=True)
             for c in data:
                 self.reddit.comment(c).delete()
-        print('[i] Removed {0} items.'.format(len(data)))
+        log(f'Removed {len(data)} items.')
 
 
 if __name__ == "__main__":
@@ -201,14 +196,13 @@ if __name__ == "__main__":
     if restore:
         backup_file = old.search_files()
         if not backup_file:
-            print('[i] No ".json" files found. Bye!')
+            log('No ".json" files found. Bye!')
             quit('[i] HINT: Use -e argument')
 
         subs = old.read_file(backup_file)
 
         print('#' * 50)
-        print(
-            '[Q]: Try to Subscribe in {0} subreddits? (Y/N)'.format(len(subs)))
+        log(f'Try to Subscribe in {len(subs)} subreddits? (Y/N)', 'question')
         ans = input('[Ans]:')
         if ans.lower() == 'y':
             new = Actions('new')
