@@ -14,20 +14,25 @@ parser.add_argument('--single_confuse', '-sc', action="store_true",
 parser.add_argument('--delete', '-d', action="store_true",
                     help="Delete comments or submissions")
 
+parser.add_argument('--activate_rollback', '-rlb', action="store_true",
+                    help="Activate rollback with help of a local DB")
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
 
     confuse = getattr(args, 'confuse')
     delete = getattr(args, 'delete')
+    rlb = getattr(args, 'activate_rollback', False)
 
     if confuse:
         log('I am going to CONFUSE your activity.')
-        print("[ATTENTION!] This can't be undone. Are you sure? (Y/N)")
+        print("[ATTENTION!] In most cases actions are not revertible. "
+            "Proceed? (Y/N)")
         ans = input('[Ans]:')
 
         if ans.lower() == 'y':
-            account = Actions('old')
+            account = Actions('old', rlb)
             log('CONFUSE All data or for a single id? \nAll=A Single=S',
                 'question')
             bulk = input('[Ans]:')
@@ -67,7 +72,7 @@ if __name__ == "__main__":
         print("[ATTENTION!] This can't be undone. Are you sure? (Y/N)")
         ans = input('[Ans]:')
         if ans.lower() == 'y':
-            account = Actions('old')
+            account = Actions('old', rlb)
             log('What to delete?\nComments=C Submissions=S', 'question')
             ans = input('[Ans]:')
             if ans.lower() == 'c':

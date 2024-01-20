@@ -6,6 +6,7 @@ import praw
 import time
 
 from helpers import get_text, log
+from db_operations import DB
 
 
 parser = argparse.ArgumentParser(description='Backup Reddit Account')
@@ -22,12 +23,15 @@ parser.add_argument('--one', '-o', action="store_true",
 
 class Actions:
 
-    def __init__(self, account):
+    def __init__(self, account, rollback=None):
         try:
             log('Asking permissions for your account(s)...')
             self.reddit = praw.Reddit(account)
             self.username = str(self.reddit.user.me())
             log('Permissions granted.\n')
+            self.rollback = rollback
+            if self.rollback:
+                self.db = DB()
         except Exception as e:
             log(e, 'error')
             quit('\n\n[e] HINT:Did you create your own praw.ini file?')
@@ -128,11 +132,15 @@ class Actions:
         if id:
             if submission:
                 sub = self.get_submission(id=id)
+                if self.rollback:
+                    self.save_for_rollback(sub, sub=True)
                 sub.edit(get_text(size))
                 quit(f'[i] Submission with id {id} confused')
 
             elif comments:
                 com = self.get_comment(id=id)
+                if self.rollback:
+                    self.save_for_rollback(com, sub=False)
                 com.edit(get_text(size))
                 quit(f'[i] Comment with id: {id} confused')
 
@@ -173,6 +181,25 @@ class Actions:
             for c in data:
                 self.reddit.comment(c).delete()
         log(f'Removed {len(data)} items.')
+
+    def save_for_rollback(self, obj, sub=False):
+        '''
+        Save the id and value of the submission to a local DB
+        :param obj: Submission or Comment instance
+        :param sub: If True submission is passed, if False comment is passed
+        '''
+        value = obj.selftext if sub else obj.body
+        data = {
+            'id': obj.id,
+            'value': value,
+            'is_comment': int(not sub)
+        }
+        saved = self.db.insert(data)
+        if saved:
+            log('Available for rollback')
+        else:
+            log('Not saved for rollback, probably id already in DB',
+                'error')
 
 
 if __name__ == "__main__":
