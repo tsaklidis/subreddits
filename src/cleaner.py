@@ -1,4 +1,5 @@
 from main import Actions
+from helpers import log
 
 
 import argparse
@@ -13,26 +14,32 @@ parser.add_argument('--single_confuse', '-sc', action="store_true",
 parser.add_argument('--delete', '-d', action="store_true",
                     help="Delete comments or submissions")
 
+parser.add_argument('--activate_rollback', '-rlb', action="store_true",
+                    help="Activate rollback with help of a local DB")
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
 
     confuse = getattr(args, 'confuse')
     delete = getattr(args, 'delete')
+    rlb = getattr(args, 'activate_rollback', False)
 
     if confuse:
-        print('[i] Will CONFUSE your activity.')
-        print("[ATTENTION!] This can't be undone. Are you sure? (Y/N)")
+        log('I am going to CONFUSE your activity.')
+        print("[ATTENTION!] In most cases actions are not revertible. "
+            "Proceed? (Y/N)")
         ans = input('[Ans]:')
 
         if ans.lower() == 'y':
-            account = Actions('old')
-            print('[Q] CONFUSE All data or for a single id? \nAll=A Single=S')
+            account = Actions('old', rlb)
+            log('CONFUSE All data or for a single id? \nAll=A Single=S',
+                'question')
             bulk = input('[Ans]:')
 
             if bulk.lower() == 'a':
-                print('[Q] What do you want to confuse?\nComments=C '
-                      'Submissions=S')
+                log('What do you want to confuse?\nComments=C '
+                      'Submissions=S', 'question')
                 what = input('[Ans]:')
 
                 if what.lower() == 'c':
@@ -43,11 +50,11 @@ if __name__ == "__main__":
                     quit('Not known action provided, quiting...')
 
             if bulk.lower() == 's':
-                print('[Q] What do you want to confuse?\nComments=C '
-                      'Submissions=S')
+                log('What do you want to confuse?\nComments=C '
+                    'Submissions=S', 'question')
                 what = input('[Ans]:')
 
-                print('[Q] Provide the id (grub it from the link)')
+                log('Provide the id (grub it from the link)', 'question')
                 id = input('[Ans]:')
 
                 if what.lower() == 'c':
@@ -58,15 +65,15 @@ if __name__ == "__main__":
                     quit('Not known action provided, quiting...')
 
     if delete:
-        print('[i] This Will DELETE ALL of your activity. You will lose all '
-              'the earned karma\n'
-              '[HINT] Reddit keeps archive of deleted stuff, use confuse '
-              'option (-c) for better results')
+        log('This Will DELETE ALL of your activity. You will lose all '
+            'the earned karma\n'
+            '[HINT] Reddit keeps archive of deleted stuff, use confuse '
+            'option (-c) for better results')
         print("[ATTENTION!] This can't be undone. Are you sure? (Y/N)")
         ans = input('[Ans]:')
         if ans.lower() == 'y':
-            account = Actions('old')
-            print('[Q] What to delete?\nComments=C Submissions=S')
+            account = Actions('old', rlb)
+            log('What to delete?\nComments=C Submissions=S', 'question')
             ans = input('[Ans]:')
             if ans.lower() == 'c':
                 account.delete_activity(comments=True)

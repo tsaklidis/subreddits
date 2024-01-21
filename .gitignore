@@ -1,6 +1,7 @@
 *.sublime-workspace
 *.sublime-project
 *.json
+*.sqlite
 .idea
 src/__pycache__/*
 /wiki
