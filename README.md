@@ -132,4 +132,4 @@ After using the confuser, the results are similar to the screen.
 ![](screens/obf.png)
 
 <h3>Changelog:</h3>
-<p>Changes can be found in the [changelog file](changelog.md)</p>
+<p>Changes can be found in the <a href="https://github.com/tsaklidis/subreddits/blob/master/changelog.md">changelog file</a></p>
