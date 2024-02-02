@@ -39,13 +39,15 @@ if __name__ == "__main__":
 
             if bulk.lower() == 'a':
                 log('What do you want to confuse?\nComments=C '
-                      'Submissions=S', 'question')
+                      'Submissions=S, Both=B', 'question')
                 what = input('[Ans]:')
 
                 if what.lower() == 'c':
                     account.confuser(comments=True)
                 elif what.lower() == 's':
                     account.confuser(submission=True)
+                elif what.lower() == 'b':
+                    account.confuser(submission=True, comments=True)
                 else:
                     quit('Not known action provided, quiting...')
 
