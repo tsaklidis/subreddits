@@ -148,15 +148,19 @@ class Actions:
             log('Confusing submission text but NOT title...')
             for s in data:
                 self.try_for_rollback(s, sub=True)
-                self.reddit.submission(s).edit(get_text(size))
+                # Older praw versions
+                # self.reddit.submission(s).edit(get_text(size))
+                s.edit(get_text(size))
 
-        elif comments:
+        if comments:
             log('This may take some time. Loading data...')
             data = self.user_activity(comments=True)
             log('Confusing comments...')
             for c in data:
                 self.try_for_rollback(c, sub=False)
-                self.reddit.comment(c).edit(get_text(size))
+                # Older praw versions
+                # self.reddit.comment(c).edit(get_text(size))
+                c.edit(get_text(size))
         log(f'Confused {len(data)} items.')
 
     def delete_activity(self, submission=None, comments=None, id=None):
