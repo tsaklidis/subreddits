@@ -151,6 +151,7 @@ class Actions:
                 # Older praw versions
                 # self.reddit.submission(s).edit(get_text(size))
                 s.edit(get_text(size))
+            log(f'Confused {len(data)} submission.')
 
         if comments:
             log('This may take some time. Loading data...')
@@ -161,7 +162,7 @@ class Actions:
                 # Older praw versions
                 # self.reddit.comment(c).edit(get_text(size))
                 c.edit(get_text(size))
-        log(f'Confused {len(data)} items.')
+            log(f'Confused {len(data)} comments.')
 
     def delete_activity(self, submission=None, comments=None, id=None):
         if id:
