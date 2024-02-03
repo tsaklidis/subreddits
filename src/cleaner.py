@@ -81,3 +81,5 @@ if __name__ == "__main__":
                 account.delete_activity(comments=True)
             if ans.lower() == 's':
                 account.delete_activity(submission=True)
+
+log('All operations are completed', 'info')
