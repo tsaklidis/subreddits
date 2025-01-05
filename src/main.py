@@ -127,7 +127,7 @@ class Actions:
     def get_comment(self, id):
         return self.reddit.comment(id=id)
 
-    def confuser(self, submission=None, comments=None, id=None, size=10):
+    def confuser(self, submission=None, comments=None, id=None, size=100):
         # TODO: How long to confuse. Example 3 weeks or 1 hour
         if id:
             if submission:

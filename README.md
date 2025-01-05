@@ -1,23 +1,25 @@
-<h1>Backup or Clean Reddit Account</h1>
+## Backup or Clean Reddit Account
 
-<h3>Info:</h3>
+<hr>
 <p>
-	<strong>[Backup]</strong>: With this functionality you can export all your subreddits. Sometimes you need a new account but want to keep all the subs you follow. Most of the time this is a boring job. 
+	<strong>🌟 Backup</strong>: With this functionality you can export all 
+your subreddits. Sometimes you need a new account but want to keep all the subs you follow. Most of the time this is a boring job. 
 </p>
 
 <p>
-	<strong>[Clean]</strong>: With this functionality you can remove all your activity for example delete all the comments you have done or all the posts you have created. People tell personal information that can lead to someone that knows them or recognize them. Lot of people say or posts things in Reddit that in person no one knows. (Actions can't be undone)
+	<strong>🧹 Clean </strong>: With this functionality you can remove all 
+your activity for example delete all the comments you have done or all the posts you have created. People tell personal information that can lead to someone that knows them or recognize them. Lot of people say or posts things in Reddit that in person no one knows. (Actions can't be undone)
 </p>
 
 <p>
-	<strong>[Confuse]</strong>: Replace your comments and posts text (not 
+	<strong>🔄 Confuse</strong>: Replace your comments and posts text (not 
 title). This is helpful since deleted comments can still be viewed. 
 Results look like screenshot at the end of page. Actions can't be undone in 
 most cases unless Rollback functionality is activated with while confusing.
 </p>
 
 <p>
-	<strong>[Rollback]</strong>: If you changed your mind and you want to
+	<strong>⏪ Rollback</strong>: If you changed your mind and you want to
 return back the confused items to their original state, rollback can do 
 this. <br>
 
@@ -26,9 +28,9 @@ item, locked account etc.</i>
 
 </p>
 
-<hr>
 
-<h3>Installation:</h3>
+### Installation
+<hr>
 
 ```shell
 git clone https://github.com/tsaklidis/subreddits.git
@@ -36,11 +38,12 @@ cd subreddits
 pip install -r requirements.txt
 ```
 
-<h3>Prepare:</h3>
+### Prepare
+<hr>
 
 <p>
 
-First you need to set the praw.ini file. <br>
+#### First you need to set the praw.ini file <br>
 
 <ul>
 <li>
@@ -64,32 +67,29 @@ Fill the data in praw.ini file
 </li>
 </ul>
 
-<hr>
-<h3>Export subreddits from your old account</h3>
+
+### Export subreddits from your old account
 
 ```shell
 python3 src/main.py -e
 ```
 
-<h3>
-	Import to your new account
-</h3>
+### Import to your new account
 
 ```shell
 python3 src/main.py -r
 ```
 
-<h3>
-	Export and Import with one run
-</h3>
+### Export and Import with one run
 
 ```shell
 python3 src/main.py -o
 ```
 
+
+### Confuse all your activity
 <hr>
 
-<h3>Confuse all your activity</h3>
 <p>You will be guided through questions what you want to confuse. <br>
 Comments or submissions 
 (posts), bulk or single action
@@ -106,8 +106,9 @@ feature and restore the confused items</p>
 python3 src/cleaner.py -c -rlb
 ```
 
+
+### Rollback the confused items
 <hr>
-<h3>Rollback the confused items</h3>
 <p>If you changed your mind and you want back your original 
 comments/submissions you can use the rollback feature.
 
@@ -118,9 +119,7 @@ The rollback is available only if you confused <strong>WITH</strong>
 python3 src/rollback.py
 ```
 
-<h3>
-	<strong>Delete</strong> all your activity.
-</h3>
+### Delete</strong> all your activity
 <p>You will be asked for comments or submissions (posts)</p>
 
 ```shell
@@ -131,5 +130,6 @@ After using the confuser, the results are similar to the screen.
 
 ![](screens/obf.png)
 
-<h3>Changelog:</h3>
+### Changelog
+<hr>
 <p>Changes can be found in the <a href="https://github.com/tsaklidis/subreddits/blob/master/changelog.md">changelog file</a></p>
