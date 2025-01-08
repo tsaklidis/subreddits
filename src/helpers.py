@@ -3,7 +3,7 @@ import hashlib
 import datetime
 
 
-# Use this helpers in order to avoid the use of PRAW
+# Use these helpers in order to avoid the use of PRAW
 # Define your credentials
 
 ACC = {
