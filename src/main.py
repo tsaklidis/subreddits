@@ -162,8 +162,8 @@ class Actions:
         if comments:
             log('This may take some time. Loading data...')
             data = await self.user_activity(comments=True)
-            log(f'Found total :{len(data)} comments.')
-            log('Confusing comments...')
+            log(f'Found total: {len(data)} comments.')
+            log('Confusing...')
             tasks = [self.edit_comment(c, size) for c in data]
             await asyncio.gather(*tasks)
             log(f'Confused {len(data)} comments.')
