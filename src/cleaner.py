@@ -1,6 +1,6 @@
+import asyncio
 from main import Actions
 from helpers import log
-
 
 import argparse
 parser = argparse.ArgumentParser(description='Clean Reddit Account')
@@ -18,7 +18,7 @@ parser.add_argument('--activate_rollback', '-rlb', action="store_true",
                     help="Activate rollback with help of a local DB")
 
 
-if __name__ == "__main__":
+async def main():
     args = parser.parse_args()
 
     confuse = getattr(args, 'confuse')
@@ -27,59 +27,61 @@ if __name__ == "__main__":
 
     if confuse:
         log('I am going to CONFUSE your activity.')
-        print("[ATTENTION!] In most cases actions are not revertible. "
-            "Proceed? (Y/N)")
+        print("[ATTENTION!] In most cases actions are not revertible. Proceed? (Y/N)")
         ans = input('[Ans]:')
 
         if ans.lower() == 'y':
             account = Actions('old', rlb)
-            log('CONFUSE All data or for a single id? \nAll=A Single=S',
-                'question')
+            await account.init_reddit()
+            log('CONFUSE All data or for a single id? \nAll=A Single=S', 'question')
             bulk = input('[Ans]:')
 
             if bulk.lower() == 'a':
-                log('What do you want to confuse?\nComments=C '
-                      'Submissions=S, Both=B', 'question')
+                log('What do you want to confuse?\nComments=C Submissions=S, Both=B', 'question')
                 what = input('[Ans]:')
 
                 if what.lower() == 'c':
-                    account.confuser(comments=True)
+                    await account.confuser(comments=True)
                 elif what.lower() == 's':
-                    account.confuser(submission=True)
+                    await account.confuser(submission=True)
                 elif what.lower() == 'b':
-                    account.confuser(submission=True, comments=True)
+                    await account.confuser(submission=True, comments=True)
                 else:
-                    quit('Not known action provided, quiting...')
+                    quit('Not known action provided, quitting...')
 
             if bulk.lower() == 's':
-                log('What do you want to confuse?\nComments=C '
-                    'Submissions=S', 'question')
+                log('What do you want to confuse?\nComments=C Submissions=S', 'question')
                 what = input('[Ans]:')
 
-                log('Provide the id (grub it from the link)', 'question')
+                log('Provide the id (grab it from the link)', 'question')
                 id = input('[Ans]:')
 
                 if what.lower() == 'c':
-                    account.confuser(comments=True, id=id)
+                    await account.confuser(comments=True, id=id)
                 elif what.lower() == 's':
-                    account.confuser(submission=True, id=id)
+                    await account.confuser(submission=True, id=id)
                 else:
-                    quit('Not known action provided, quiting...')
+                    quit('Not known action provided, quitting...')
 
     if delete:
-        log('This Will DELETE ALL of your activity. You will lose all '
-            'the earned karma\n'
-            '[HINT] Reddit keeps archive of deleted stuff, use confuse '
-            'option (-c) for better results')
+        log('This Will DELETE ALL of your activity. You will lose all the earned karma\n'
+            '[HINT] Reddit keeps an archive of deleted stuff, use confuse option (-c) for better results')
         print("[ATTENTION!] This can't be undone. Are you sure? (Y/N)")
         ans = input('[Ans]:')
         if ans.lower() == 'y':
             account = Actions('old', rlb)
+            await account.init_reddit()
             log('What to delete?\nComments=C Submissions=S', 'question')
             ans = input('[Ans]:')
-            if ans.lower() == 'c':
-                account.delete_activity(comments=True)
-            if ans.lower() == 's':
-                account.delete_activity(submission=True)
 
-log('All operations are completed', 'info')
+            if ans.lower() == 'c':
+                await account.delete_activity(comments=True)
+            elif ans.lower() == 's':
+                await account.delete_activity(submission=True)
+
+    log('All operations are completed', 'info')
+    await account.close_reddit()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
