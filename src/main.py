@@ -222,6 +222,11 @@ if __name__ == "__main__":
     old = Actions('old')
 
     async def main():
+
+        export_subs = getattr(args, 'export')
+        restore = getattr(args, 'restore')
+        one = getattr(args, 'one')
+
         await old.init_reddit()
         if export_subs or restore or one:
             if one:

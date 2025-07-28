@@ -32,16 +32,48 @@ item, locked account etc.</i>
 ### Installation
 <hr>
 
+
+This project requires Python version 3.10 to run.
+The easiest way to this is by using [uv](https://docs.astral.sh/uv/) 
+to create a [virtual environment](https://docs.astral.sh/uv/pip/environments/) that houses Python version 3.10. If you don't have it installed already here is [how to install uv](https://docs.astral.sh/uv/#installation).
+
+
+#### Installation on Windows
 ```shell
 git clone https://github.com/tsaklidis/subreddits.git
 cd subreddits
-pip install -r requirements.txt
+uv venv --python 3.10
+.venv\Scripts\activate
+uv pip install -r requirements.txt
 ```
+
+#### Installation on macOS or Linux
+```shell
+git clone https://github.com/tsaklidis/subreddits.git
+cd subreddits
+uv venv --python 3.10
+source .venv/bin/activate 
+uv pip install -r requirements.txt
+```
+
+#### Disclaimer 
+If you are new to virtual environments, you need to know that before you can run commands from this project the virtual environment must be activated.
+```shell
+cd subreddits
+
+.venv\Scripts\activate # on Windows
+source .venv/bin/activate # on macOS or Linux
+
+# to exit the virtual environment when you are done use the deactivate command
+deactivate 
+```
+
 
 ### Prepare
 <hr>
 
 <p>
+
 
 #### First you need to set the praw.ini file <br>
 
