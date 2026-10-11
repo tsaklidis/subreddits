@@ -5,9 +5,8 @@ import os
 import time
 import asyncio
 import asyncpraw
-import aiohttp
 
-from helpers import get_text, log
+from helpers import get_text, log, confirm
 from db_operations import DB
 
 parser = argparse.ArgumentParser(description='Backup Reddit Account')
@@ -30,10 +29,10 @@ class Actions:
 
     async def init_reddit(self):
         try:
-            log('Asking permissions for your account(s)...')
-            self.reddit = asyncpraw.Reddit(self.account, requestor_kwargs={"session": aiohttp.ClientSession()})
+            log('Connecting to Reddit...')
+            self.reddit = asyncpraw.Reddit(self.account)
             self.username = str(await self.reddit.user.me())
-            log('Permissions granted.\n')
+            log(f'Logged in as: u/{self.username}\n')
             if self.rollback:
                 self.db = DB()
         except Exception as e:
@@ -101,25 +100,25 @@ class Actions:
             return False
 
     async def subscribe(self, sub, action):
-        # With action True or False
-        # Select subscribe or leave a subreddit
         try:
+            subreddit = await self.reddit.subreddit(sub)
             if action:
-                await self.reddit.subreddit(sub).subscribe()
+                await subreddit.subscribe()
                 log(f'Successfully joined {sub}')
             else:
-                await self.reddit.subreddit(sub).unsubscribe()
-                log(f'Leaved {sub}')
+                await subreddit.unsubscribe()
+                log(f'Left {sub}')
         except Exception as e:
             log(e, 'error')
 
     async def user_activity(self, submission=None, comments=None, count=None):
         data = []
+        redditor = await self.reddit.redditor(self.username)
         if submission:
-            async for s in (await self.reddit.redditor(self.username)).submissions.new(limit=None):
+            async for s in redditor.submissions.new(limit=None):
                 data.append(s)
         elif comments:
-            async for c in (await self.reddit.redditor(self.username)).comments.new(limit=None):
+            async for c in redditor.comments.new(limit=None):
                 data.append(c)
         if count:
             return len(data)
@@ -131,9 +130,10 @@ class Actions:
     async def get_comment(self, id):
         return await self.reddit.comment(id=id)
 
-    async def edit_comment(self, comment, size):
+    async def _confuse_item(self, item, size, is_submission=False):
         try:
-            await comment.edit(get_text(size))
+            self.try_for_rollback(item, sub=is_submission)
+            await item.edit(get_text(size))
         except Exception as e:
             log(e, 'error')
 
@@ -155,7 +155,7 @@ class Actions:
             log('This may take some time.\nLoading data...')
             data = await self.user_activity(submission=True)
             log('Confusing submission text but NOT title...')
-            tasks = [self.edit_comment(s, size) for s in data]
+            tasks = [self._confuse_item(s, size, is_submission=True) for s in data]
             await asyncio.gather(*tasks)
             log(f'Confused {len(data)} submissions.')
 
@@ -164,7 +164,7 @@ class Actions:
             data = await self.user_activity(comments=True)
             log(f'Found total: {len(data)} comments.')
             log('Confusing...')
-            tasks = [self.edit_comment(c, size) for c in data]
+            tasks = [self._confuse_item(c, size) for c in data]
             await asyncio.gather(*tasks)
             log(f'Confused {len(data)} comments.')
 
@@ -183,12 +183,12 @@ class Actions:
             log('Deleting submissions...')
             data = await self.user_activity(submission=True)
             for s in data:
-                await self.reddit.submission(s).delete()
+                await s.delete()
         elif comments:
             log('Deleting comments...')
             data = await self.user_activity(comments=True)
             for c in data:
-                await self.reddit.comment(c).delete()
+                await c.delete()
         log(f'Removed {len(data)} items.')
 
     def try_for_rollback(self, obj, sub=False):
@@ -219,39 +219,47 @@ if __name__ == "__main__":
     restore = getattr(args, 'restore')
     one = getattr(args, 'one')
 
-    old = Actions('old')
+    if not (export_subs or restore or one):
+        parser.print_help()
+        quit()
 
     async def main():
+        old = Actions('old')
         await old.init_reddit()
-        if export_subs or restore or one:
-            if one:
-                export_subs = restore = True
 
-            if export_subs:
-                await old.export_subs()
+        if one:
+            export_subs_run = restore_run = True
+        else:
+            export_subs_run = export_subs
+            restore_run = restore
 
-            if restore:
-                backup_file = old.search_files()
-                if not backup_file:
-                    log('No ".json" files found. Bye!')
-                    quit('[i] HINT: Use -e argument')
+        if export_subs_run:
+            await old.export_subs()
 
-                subs = old.read_file(backup_file)
+        if restore_run:
+            backup_file = old.search_files()
+            if not backup_file:
+                log('No ".json" files found.')
+                log('HINT: Use -e to export first.', 'warn')
+                await old.close_reddit()
+                return
 
-                print('#' * 50)
-                log(f'Try to Subscribe in {len(subs)} subreddits? (Y/N)', 'question')
-                ans = input('[Ans]:')
-                if ans.lower() == 'y':
-                    new = Actions('new')
-                    await new.init_reddit()
-                    existing_subs = await new.get_subs()
-                    to_sub = set(subs) - set(existing_subs)
+            subs = old.read_file(backup_file)
+            log(f'Found {len(subs)} subreddits in backup file.')
 
-                    for sub in list(to_sub):
-                        await new.subscribe(sub, True)
-                    quit('[i] All done. Bye!')
-                else:
-                    quit('OK, quitting with no worries.')
+            new = Actions('new')
+            await new.init_reddit()
+            existing_subs = await new.get_subs()
+            to_sub = list(set(subs) - set(existing_subs))
+
+            if len(to_sub) == 0:
+                log(f'u/{new.username} is already subscribed to all {len(subs)} subreddits.')
+            elif confirm(f'Subscribe u/{new.username} to {len(to_sub)} new subreddits ({len(subs) - len(to_sub)} already joined)?'):
+                for i, sub in enumerate(to_sub, 1):
+                    await new.subscribe(sub, True)
+                log(f'Done! Subscribed to {len(to_sub)} subreddits.')
+
+            await new.close_reddit()
 
         await old.close_reddit()
 

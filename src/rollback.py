@@ -1,45 +1,50 @@
-import argparse
+import asyncio
 
 from main import Actions
 from db_operations import DB
-from helpers import log
+from helpers import log, confirm
 
-parser = argparse.ArgumentParser(description='Rollback after confusion run')
 
-parser.add_argument('--do-it', '-do-it', action="store_true",
-                    help="Send the changes to Reddit, default is dry run")
+async def main():
+    database = DB()
+    to_rollback = database.get_pending_rollbacks()
+
+    if len(to_rollback) == 0:
+        log('No pending rollbacks found.')
+        return
+
+    comments = [r for r in to_rollback if r['is_comment']]
+    submissions = [r for r in to_rollback if not r['is_comment']]
+    log(f'Found {len(to_rollback)} pending rollbacks '
+        f'({len(comments)} comments, {len(submissions)} submissions)')
+
+    if not confirm('Restore original content on Reddit?'):
+        log('Rollback cancelled.')
+        return
+
+    account = Actions('old')
+    await account.init_reddit()
+
+    success = 0
+    for i, item in enumerate(to_rollback, 1):
+        item_id = item['id']
+        kind = 'comment' if item['is_comment'] else 'submission'
+        try:
+            if item['is_comment']:
+                obj = await account.get_comment(id=item_id)
+            else:
+                obj = await account.get_submission(id=item_id)
+
+            await obj.edit(item['value'])
+            database.delete_record(item_id)
+            success += 1
+            log(f'[{i}/{len(to_rollback)}] Restored {kind} {item_id}')
+        except Exception as e:
+            log(f'[{i}/{len(to_rollback)}] Failed {kind} {item_id}: {e}', 'error')
+
+    await account.close_reddit()
+    log(f'Rollback finished: {success}/{len(to_rollback)} restored.')
 
 
 if __name__ == "__main__":
-    account = Actions('old')
-    database = DB()
-    to_rollback = database.get_pending_rollbacks()
-    success_rolls = 0
-
-    log(f'Found {len(to_rollback)} pending rollbacks')
-    log(f'Try to send them back online (Y/N)?')
-    ans = input('[Ans]:')
-    if ans.lower() == 'y':
-        for item in to_rollback:
-            # We need to get the correct object, comment or submission
-            item_id = item.get('id')
-            if item.get('is_comment'):
-                obj = account.get_comment(id=item_id)
-            else:
-                obj = account.get_submission(id=item_id)
-            try:
-                # Try to edit the object by id, it may fail for varius
-                # reasons eg: Item is deleted
-                obj.edit(item.get('value'))
-
-                # Rollback sent back online, no reason to keep it in DB. Delete
-                database.delete_record(item_id)
-                success_rolls += 1
-            except Exception as e:
-                log('Could not rollback, Comment/Submission not found',
-                    'error')
-        log(f'Rollback finished! Completed {success_rolls}/{len(to_rollback)}')
-        quit('Bye!')
-    else:
-        log('Rollback cancelled.')
-        quit('Bye!')
+    asyncio.run(main())
